@@ -1,12 +1,15 @@
 package com.example.webfluxStudy.controller;
 
 import com.example.webfluxStudy.dto.BoardDto;
+import com.example.webfluxStudy.exception.ApiResponse;
 import com.example.webfluxStudy.service.BoardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -19,25 +22,59 @@ public class BoardController {
     private BoardService boardService;
 
     @PostMapping
-    public Mono<BoardDto> saveBoard(@RequestBody BoardDto boardDto) {
-        System.out.println("boardDto = " + boardDto);
-        return boardService.saveBoard(boardDto);
+    public Mono<ResponseEntity<ApiResponse<BoardDto>>> saveBoard(@RequestBody BoardDto boardDto) {
+//        HttpHeaders header = new HttpHeaders();
+//        header.add("desc", "test header");
+        return boardService.saveBoard(boardDto)
+                .map(dto -> ResponseEntity
+                        .status(HttpStatus.CREATED)
+//                        .headers(header)
+                        .header("desc", "test header", "test header2")
+                        .body(ApiResponse.<BoardDto>builder()
+                                .code(201)
+                                .message("test message")
+                                .data(dto)
+                                .build()));
     }
 
     @GetMapping("/{id}")
-    public Mono<BoardDto> getBoard(@PathVariable String id){
-        return boardService.getBoard(id);
+    public Mono<ResponseEntity<ApiResponse<BoardDto>>> getBoard(@PathVariable String id){
+        return boardService.getBoard(id)
+                .map(dto -> ResponseEntity
+                        .ok()
+                        .header("desc", "test header", "test header2")
+                        .body(ApiResponse.<BoardDto>builder()
+                                .code(200)
+                                .message("test message")
+                                .data(dto)
+                                .build()));
     }
 
     @PutMapping("/{id}")
-    public Mono<BoardDto> updateBoard(@PathVariable String id, @RequestBody Mono<BoardDto> boardDto){
-        return boardService.updateBoard(id, boardDto);
+    public Mono<ResponseEntity<ApiResponse<BoardDto>>> updateBoard(@PathVariable String id, @RequestBody Mono<BoardDto> boardDto){
+        return boardService.updateBoard(id, boardDto)
+                .map(dto -> ResponseEntity
+                        .ok()
+                        .header("desc", "test header", "test header2")
+                        .body(ApiResponse.<BoardDto>builder()
+                                .code(200)
+                                .message("test message")
+                                .data(dto)
+                                .build()));
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public Mono<Void> deleteMember(@PathVariable("id") String id){
-        return boardService.deleteBoard(id);
+//    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public Mono<ResponseEntity<ApiResponse<?>>> deleteMember(@PathVariable("id") String id){
+        return boardService.deleteBoard(id)
+                .map(dto -> ResponseEntity
+                        .ok()
+                        .header("desc", "test header", "test header2")
+                        .body(ApiResponse.builder()
+                                .code(200)
+                                .message("test message")
+                                .data(null)
+                                .build()));
     }
 
     @GetMapping("/latest-seen-board")
