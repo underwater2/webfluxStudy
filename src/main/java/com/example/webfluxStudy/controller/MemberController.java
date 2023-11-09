@@ -9,7 +9,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("member")
+@RequestMapping("/member")
 public class MemberController {
 
     @Autowired
@@ -22,8 +22,8 @@ public class MemberController {
     }
 
     @GetMapping("/{id}")
-    public Mono<MemberDto> getMember(@PathVariable("id") String memberDto){
-        return memberService.getMember(memberDto);
+    public Mono<MemberDto> getMember(@PathVariable("id") String memberId){
+        return memberService.getMember(memberId);
     }
 
     @GetMapping

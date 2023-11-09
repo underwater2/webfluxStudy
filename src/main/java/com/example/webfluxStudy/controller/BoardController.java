@@ -15,14 +15,15 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("board")
+@RequestMapping("/v1/board")
 public class BoardController {
 
     @Autowired
     private BoardService boardService;
 
-    @PostMapping
+    @PostMapping("/item")
     public Mono<ResponseEntity<ApiResponse<BoardDto>>> saveBoard(@RequestBody BoardDto boardDto) {
+//        헤더 여러 개 한꺼번에 추가
 //        HttpHeaders header = new HttpHeaders();
 //        header.add("desc", "test header");
         return boardService.saveBoard(boardDto)
@@ -37,7 +38,7 @@ public class BoardController {
                                 .build()));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/item/{id}")
     public Mono<ResponseEntity<ApiResponse<BoardDto>>> getBoard(@PathVariable String id){
         return boardService.getBoard(id)
                 .map(dto -> ResponseEntity
@@ -50,7 +51,7 @@ public class BoardController {
                                 .build()));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/item/{id}")
     public Mono<ResponseEntity<ApiResponse<BoardDto>>> updateBoard(@PathVariable String id, @RequestBody Mono<BoardDto> boardDto){
         return boardService.updateBoard(id, boardDto)
                 .map(dto -> ResponseEntity
@@ -63,11 +64,10 @@ public class BoardController {
                                 .build()));
     }
 
-    @DeleteMapping("/{id}")
-//    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    @DeleteMapping("/item/{id}")
     public Mono<ResponseEntity<ApiResponse<?>>> deleteMember(@PathVariable("id") String id){
         return boardService.deleteBoard(id)
-                .map(dto -> ResponseEntity
+                .thenReturn(ResponseEntity
                         .ok()
                         .header("desc", "test header", "test header2")
                         .body(ApiResponse.builder()
@@ -77,9 +77,22 @@ public class BoardController {
                                 .build()));
     }
 
-    @GetMapping("/latest-seen-board")
-    public Flux<ZSetOperations.TypedTuple<String>> getLatestSeenBoard() {
-        return boardService.getLatestSeenBoard();
+    @GetMapping("/latest-seen")
+    public ResponseEntity<Flux<ZSetOperations.TypedTuple<String>>> getLatestSeenBoard() {
+//    data 잘못나오는 코드
+//    public ResponseEntity<ApiResponse<Flux<ZSetOperations.TypedTuple<String>>>> getLatestSeenBoard() {
+//        return ResponseEntity
+//                .ok()
+//                .header("desc", "test header", "test header2")
+//                .body(ApiResponse.<Flux<ZSetOperations.TypedTuple<String>>>builder()
+//                        .code(200)
+//                        .message("test messagezzzzz")
+//                        .data(boardService.getLatestSeenBoard())
+//                        .build());
+        return ResponseEntity
+                .ok()
+                .header("desc", "test header", "test header2")
+                .body(boardService.getLatestSeenBoard());
     }
 
 
