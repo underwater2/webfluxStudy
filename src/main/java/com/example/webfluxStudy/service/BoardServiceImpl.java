@@ -73,7 +73,7 @@ public class BoardServiceImpl implements BoardService {
 
     public Flux<ZSetOperations.TypedTuple<String>> getLatestSeenBoard() {
         return reactiveRedisTemplate.opsForZSet()
-                .rangeWithScores(
+                .reverseRangeWithScores(
                         "latest-seen-boards:" + "username",
                         Range.of(Range.Bound.inclusive((long) 0), Range.Bound.inclusive((long) 9)))
                 .doOnNext(tuple -> log.info("tuple = {}", tuple));
