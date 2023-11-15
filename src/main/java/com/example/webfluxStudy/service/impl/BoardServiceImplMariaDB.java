@@ -1,6 +1,5 @@
 package com.example.webfluxStudy.service.impl;
 
-import com.example.webfluxStudy.dto.BoardDto;
 import com.example.webfluxStudy.dto.BoardDtoMariaDB;
 import com.example.webfluxStudy.entity.BoardMariaDB;
 import com.example.webfluxStudy.mapper.BoardMapperMariaDB;
@@ -8,16 +7,9 @@ import com.example.webfluxStudy.repository.BoardRepositoryMariaDB;
 import com.example.webfluxStudy.service.BoardServiceMariaDB;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Range;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
-
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 
 @Slf4j
 @Service

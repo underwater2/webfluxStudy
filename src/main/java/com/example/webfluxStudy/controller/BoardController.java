@@ -1,6 +1,6 @@
 package com.example.webfluxStudy.controller;
 
-import com.example.webfluxStudy.dto.BoardDto;
+import com.example.webfluxStudy.dto.BoardDtoMongoDB;
 import com.example.webfluxStudy.dto.BoardDtoMariaDB;
 import com.example.webfluxStudy.exception.ApiResponse;
 import com.example.webfluxStudy.service.BoardServiceMariaDB;
@@ -25,7 +25,7 @@ public class BoardController {
 
 
     @PostMapping("/item")
-    public Mono<ResponseEntity<ApiResponse<BoardDto>>> saveBoard(@RequestBody BoardDto boardDto) {
+    public Mono<ResponseEntity<ApiResponse<BoardDtoMongoDB.response>>> saveBoard(@RequestBody BoardDtoMongoDB.save boardDto) {
 //        헤더 여러 개 한꺼번에 추가
 //        HttpHeaders header = new HttpHeaders();
 //        header.add("desc", "test header");
@@ -34,7 +34,7 @@ public class BoardController {
                         .status(HttpStatus.CREATED)
 //                        .headers(header)
                         .header("desc", "test header", "test header2")
-                        .body(ApiResponse.<BoardDto>builder()
+                        .body(ApiResponse.<BoardDtoMongoDB.response>builder()
                                 .code(201)
                                 .message("test message")
                                 .data(dto)
@@ -42,12 +42,12 @@ public class BoardController {
     }
 
     @GetMapping("/item/{id}")
-    public Mono<ResponseEntity<ApiResponse<BoardDto>>> getBoard(@PathVariable String id){
+    public Mono<ResponseEntity<ApiResponse<BoardDtoMongoDB.response>>> getBoard(@PathVariable String id){
         return boardService.getBoard(id)
                 .map(dto -> ResponseEntity
                         .ok()
                         .header("desc", "test header", "test header2")
-                        .body(ApiResponse.<BoardDto>builder()
+                        .body(ApiResponse.<BoardDtoMongoDB.response>builder()
                                 .code(200)
                                 .message("test message")
                                 .data(dto)
@@ -68,12 +68,12 @@ public class BoardController {
 //    }
 
     @PutMapping("/item/{id}")
-    public Mono<ResponseEntity<ApiResponse<BoardDto>>> updateBoard(@PathVariable String id, @RequestBody Mono<BoardDto> boardDto){
+    public Mono<ResponseEntity<ApiResponse<BoardDtoMongoDB.response>>> updateBoard(@PathVariable String id, @RequestBody Mono<BoardDtoMongoDB.save> boardDto){
         return boardService.updateBoard(id, boardDto)
                 .map(dto -> ResponseEntity
                         .ok()
                         .header("desc", "test header", "test header2")
-                        .body(ApiResponse.<BoardDto>builder()
+                        .body(ApiResponse.<BoardDtoMongoDB.response>builder()
                                 .code(200)
                                 .message("test message")
                                 .data(dto)

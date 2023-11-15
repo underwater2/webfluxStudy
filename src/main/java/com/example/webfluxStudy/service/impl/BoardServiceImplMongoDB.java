@@ -1,8 +1,8 @@
 package com.example.webfluxStudy.service.impl;
 
-import com.example.webfluxStudy.dto.BoardDto;
+import com.example.webfluxStudy.dto.BoardDtoMongoDB;
 import com.example.webfluxStudy.entity.BoardMongoDB;
-import com.example.webfluxStudy.mapper.BoardMapper;
+import com.example.webfluxStudy.mapper.BoardMapperMongoDB;
 import com.example.webfluxStudy.repository.BoardRepositoryMongoDB;
 import com.example.webfluxStudy.service.BoardServiceMongoDB;
 import lombok.extern.slf4j.Slf4j;
@@ -32,25 +32,25 @@ public class BoardServiceImplMongoDB implements BoardServiceMongoDB {
 
 
     @Override
-    public Mono<BoardDto> saveBoard(BoardDto boardDto) {
-        BoardMongoDB board = BoardMapper.toBoard(boardDto);
+    public Mono<BoardDtoMongoDB.response> saveBoard(BoardDtoMongoDB.save boardDto) {
+        BoardMongoDB board = BoardMapperMongoDB.toEntitySave(boardDto);
         Mono<BoardMongoDB> savedBoard = boardRepository.save(board);
         return savedBoard
-                .map(BoardMapper::toBoardDto);
+                .map(BoardMapperMongoDB::toDto);
     }
 
     @Override
-    public Mono<BoardDto> getBoard(String id) {
+    public Mono<BoardDtoMongoDB.response> getBoard(String id) {
         Mono<BoardMongoDB> foundBoard = boardRepository.findById(id);
 
         setLatestSeenBoard(id);
         return foundBoard
-                .map(BoardMapper::toBoardDto)
+                .map(BoardMapperMongoDB::toDto)
                 .switchIfEmpty(Mono.empty());
     }
 
     @Override
-    public Mono<BoardDto> updateBoard(String id, Mono<BoardDto> boardDto) {
+    public Mono<BoardDtoMongoDB.response> updateBoard(String id, Mono<BoardDtoMongoDB.save> boardDto) {
         return boardRepository.findById(id)
                 .zipWith(boardDto)
                 .doOnNext(t -> {
@@ -59,7 +59,7 @@ public class BoardServiceImplMongoDB implements BoardServiceMongoDB {
                 })
                 .map(Tuple2::getT1)
                 .flatMap(boardRepository::save)
-                .map(BoardMapper::toBoardDto);
+                .map(BoardMapperMongoDB::toDto);
     }
 
     @Override

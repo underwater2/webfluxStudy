@@ -1,19 +1,19 @@
 package com.example.webfluxStudy.service;
 
-import com.example.webfluxStudy.dto.BoardDto;
+import com.example.webfluxStudy.dto.BoardDtoMongoDB;
 import org.springframework.data.redis.core.ZSetOperations;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface BoardServiceMongoDB {
 
-    Mono<BoardDto> saveBoard(BoardDto boardDto);
+    Mono<BoardDtoMongoDB.response> saveBoard(BoardDtoMongoDB.save boardDto);
 
-    Mono<BoardDto> getBoard(String id);
+    Mono<BoardDtoMongoDB.response> getBoard(String id);
 
 //    getBoardList()
 
-    Mono<BoardDto> updateBoard(String id, Mono<BoardDto> boardDto);
+    Mono<BoardDtoMongoDB.response> updateBoard(String id, Mono<BoardDtoMongoDB.save> boardDto);
 
     Mono<Void> deleteBoard(String memberId);
 
