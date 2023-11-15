@@ -1,13 +1,12 @@
 package com.example.webfluxStudy.controller;
 
 import com.example.webfluxStudy.dto.BoardDto;
+import com.example.webfluxStudy.dto.BoardDtoMariaDB;
 import com.example.webfluxStudy.exception.ApiResponse;
-import com.example.webfluxStudy.service.BoardService;
+import com.example.webfluxStudy.service.BoardServiceMariaDB;
+import com.example.webfluxStudy.service.BoardServiceMongoDB;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +18,11 @@ import reactor.core.publisher.Mono;
 public class BoardController {
 
     @Autowired
-    private BoardService boardService;
+    private BoardServiceMongoDB boardService;
+
+    @Autowired
+    private BoardServiceMariaDB boardServiceMariaDB;
+
 
     @PostMapping("/item")
     public Mono<ResponseEntity<ApiResponse<BoardDto>>> saveBoard(@RequestBody BoardDto boardDto) {
@@ -51,6 +54,19 @@ public class BoardController {
                                 .build()));
     }
 
+//    @GetMapping("/list/{page}")
+//    public Mono<ResponseEntity<ApiResponse<BoardDto>>> getBoardList(@PathVariable Integer page){
+//        return boardService.getBoardList(id)
+//                .map(dto -> ResponseEntity
+//                        .ok()
+//                        .header("desc", "test header", "test header2")
+//                        .body(ApiResponse.<BoardDto>builder()
+//                                .code(200)
+//                                .message("test message")
+//                                .data(dto)
+//                                .build()));
+//    }
+
     @PutMapping("/item/{id}")
     public Mono<ResponseEntity<ApiResponse<BoardDto>>> updateBoard(@PathVariable String id, @RequestBody Mono<BoardDto> boardDto){
         return boardService.updateBoard(id, boardDto)
@@ -79,7 +95,14 @@ public class BoardController {
 
     @GetMapping("/latest-seen")
     public ResponseEntity<Flux<ZSetOperations.TypedTuple<String>>> getLatestSeenBoard() {
+        return ResponseEntity
+                .ok()
+                .header("desc", "test header", "test header2")
+                .body(boardService.getLatestSeenBoard());
+    }
+
 //    data 잘못나오는 코드
+//    @GetMapping("/latest-seen")
 //    public ResponseEntity<ApiResponse<Flux<ZSetOperations.TypedTuple<String>>>> getLatestSeenBoard() {
 //        return ResponseEntity
 //                .ok()
@@ -89,16 +112,39 @@ public class BoardController {
 //                        .message("test messagezzzzz")
 //                        .data(boardService.getLatestSeenBoard())
 //                        .build());
-        return ResponseEntity
-                .ok()
-                .header("desc", "test header", "test header2")
-                .body(boardService.getLatestSeenBoard());
+//    }
+
+    //---------------------- MariaDB 관련
+    @PostMapping("mariadb/item")
+    public Mono<ResponseEntity<ApiResponse<BoardDtoMariaDB.response>>> saveBoardMariaDB(@RequestBody BoardDtoMariaDB.save boardDto) {
+        return boardServiceMariaDB.saveBoard(boardDto)
+                .map(dto -> ResponseEntity
+                        .status(HttpStatus.CREATED)
+                        .header("desc", "test header", "test header2")
+                        .body(ApiResponse.<BoardDtoMariaDB.response>builder()
+                                .code(201)
+                                .message("test message / MariaDB")
+                                .data(dto)
+                                .build()));
+    }
+
+    @GetMapping("mariadb/item/{id}")
+    public Mono<ResponseEntity<ApiResponse<BoardDtoMariaDB.response>>> getBoardMariaDB(@PathVariable String id){
+        return boardServiceMariaDB.getBoard(id)
+                .map(dto -> ResponseEntity
+                        .ok()
+                        .header("desc", "test header", "test header2")
+                        .body(ApiResponse.<BoardDtoMariaDB.response>builder()
+                                .code(200)
+                                .message("test message / MariaDB")
+                                .data(dto)
+                                .build()));
     }
 
 
-    /*
+    //---------------------- redis 연결 테스트 코드
 
-    // redis 연결 테스트 코드
+    /*
     @Autowired
     private ReactiveRedisTemplate<String, String> reactiveRedisTemplate;
 //    private RedisTemplate<String, String> redisTemplate;
@@ -125,6 +171,5 @@ public class BoardController {
 //            System.err.println("Error connecting to Redis: " + e.getMessage());
 //        }
     }
-
      */
 }

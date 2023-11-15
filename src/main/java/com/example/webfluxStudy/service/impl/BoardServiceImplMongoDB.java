@@ -1,17 +1,16 @@
-package com.example.webfluxStudy.service;
+package com.example.webfluxStudy.service.impl;
 
 import com.example.webfluxStudy.dto.BoardDto;
-import com.example.webfluxStudy.entity.Board;
+import com.example.webfluxStudy.entity.BoardMongoDB;
 import com.example.webfluxStudy.mapper.BoardMapper;
-import com.example.webfluxStudy.repository.BoardRepository;
+import com.example.webfluxStudy.repository.BoardRepositoryMongoDB;
+import com.example.webfluxStudy.service.BoardServiceMongoDB;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Range;
-import org.springframework.data.redis.core.ReactiveHashOperations;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
-import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -21,10 +20,10 @@ import java.text.SimpleDateFormat;
 
 @Slf4j
 @Service
-public class BoardServiceImpl implements BoardService {
+public class BoardServiceImplMongoDB implements BoardServiceMongoDB {
 
     @Autowired
-    private BoardRepository boardRepository;
+    private BoardRepositoryMongoDB boardRepository;
     
     @Autowired
     private ReactiveRedisTemplate<String, String> reactiveRedisTemplate;
@@ -34,15 +33,15 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public Mono<BoardDto> saveBoard(BoardDto boardDto) {
-        Board board = BoardMapper.toBoard(boardDto);
-        Mono<Board> savedBoard = boardRepository.save(board);
+        BoardMongoDB board = BoardMapper.toBoard(boardDto);
+        Mono<BoardMongoDB> savedBoard = boardRepository.save(board);
         return savedBoard
                 .map(BoardMapper::toBoardDto);
     }
 
     @Override
     public Mono<BoardDto> getBoard(String id) {
-        Mono<Board> foundBoard = boardRepository.findById(id);
+        Mono<BoardMongoDB> foundBoard = boardRepository.findById(id);
 
         setLatestSeenBoard(id);
         return foundBoard

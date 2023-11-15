@@ -1,11 +1,11 @@
 package com.example.webfluxStudy.mapper;
 
 import com.example.webfluxStudy.dto.BoardDto;
-import com.example.webfluxStudy.entity.Board;
+import com.example.webfluxStudy.entity.BoardMongoDB;
 
 public class BoardMapper {
 
-    public static BoardDto toBoardDto(Board board) {
+    public static BoardDto toBoardDto(BoardMongoDB board) {
         return new BoardDto(
                 board.getId(),
                 board.getTitle(),
@@ -13,8 +13,8 @@ public class BoardMapper {
         );
     }
 
-    public static Board toBoard(BoardDto boardDto) {
-        return new Board(
+    public static BoardMongoDB toBoard(BoardDto boardDto) {
+        return new BoardMongoDB(
                 boardDto.getId(),
                 boardDto.getTitle(),
                 boardDto.getBody()

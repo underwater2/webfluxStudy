@@ -2,20 +2,20 @@ package com.example.webfluxStudy.entity;
 
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.Getter;
-import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
+@Getter
 public class BaseEntity {
 
     @PastOrPresent
     @CreatedDate
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     @PastOrPresent
     @LastModifiedDate
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
 
 }
