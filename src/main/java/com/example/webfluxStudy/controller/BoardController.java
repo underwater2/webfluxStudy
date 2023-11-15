@@ -3,9 +3,13 @@ package com.example.webfluxStudy.controller;
 import com.example.webfluxStudy.dto.BoardDtoMongoDB;
 import com.example.webfluxStudy.dto.BoardDtoMariaDB;
 import com.example.webfluxStudy.exception.ApiResponse;
+import com.example.webfluxStudy.mapper.BoardMapperMariaDB;
 import com.example.webfluxStudy.service.BoardServiceMariaDB;
 import com.example.webfluxStudy.service.BoardServiceMongoDB;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -114,8 +118,9 @@ public class BoardController {
 //                        .build());
 //    }
 
+
     //---------------------- MariaDB 관련
-    @PostMapping("mariadb/item")
+    @PostMapping("/mariadb/item")
     public Mono<ResponseEntity<ApiResponse<BoardDtoMariaDB.response>>> saveBoardMariaDB(@RequestBody BoardDtoMariaDB.save boardDto) {
         return boardServiceMariaDB.saveBoard(boardDto)
                 .map(dto -> ResponseEntity
@@ -128,7 +133,7 @@ public class BoardController {
                                 .build()));
     }
 
-    @GetMapping("mariadb/item/{id}")
+    @GetMapping("/mariadb/item/{id}")
     public Mono<ResponseEntity<ApiResponse<BoardDtoMariaDB.response>>> getBoardMariaDB(@PathVariable String id){
         return boardServiceMariaDB.getBoard(id)
                 .map(dto -> ResponseEntity
@@ -139,6 +144,11 @@ public class BoardController {
                                 .message("test message / MariaDB")
                                 .data(dto)
                                 .build()));
+    }
+
+    @GetMapping("/mariadb/list/{page}")
+    public Mono<Page<BoardDtoMariaDB.response>> getBoardList(@PathVariable int page, @RequestParam int size) {
+        return boardServiceMariaDB.getBoardList(PageRequest.of(page, size));
     }
 
 

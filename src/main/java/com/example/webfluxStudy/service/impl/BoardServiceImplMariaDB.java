@@ -7,6 +7,9 @@ import com.example.webfluxStudy.repository.BoardRepositoryMariaDB;
 import com.example.webfluxStudy.service.BoardServiceMariaDB;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -41,6 +44,15 @@ public class BoardServiceImplMariaDB implements BoardServiceMariaDB {
         return foundBoard
                 .map(BoardMapperMariaDB::toDto)
                 .switchIfEmpty(Mono.empty());
+    }
+
+    @Override
+    public Mono<Page<BoardDtoMariaDB.response>> getBoardList(PageRequest pageRequest) {
+        return boardRepository.findAllBy(pageRequest)
+                .map(BoardMapperMariaDB::toDto)
+                .collectList()
+                .zipWith(boardRepository.count())
+                .map(t -> new PageImpl<>(t.getT1(), pageRequest, t.getT2()));
     }
 
     /*
