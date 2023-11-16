@@ -1,6 +1,9 @@
 package com.example.webfluxStudy.service;
 
+import com.example.webfluxStudy.dto.BoardDtoMariaDB;
 import com.example.webfluxStudy.dto.BoardDtoMongoDB;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.ZSetOperations;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -11,7 +14,7 @@ public interface BoardServiceMongoDB {
 
     Mono<BoardDtoMongoDB.response> getBoard(String id);
 
-//    getBoardList()
+    Mono<Page<BoardDtoMongoDB.response>> getBoardList(String title, PageRequest pageRequest);
 
     Mono<BoardDtoMongoDB.response> updateBoard(String id, Mono<BoardDtoMongoDB.save> boardDto);
 

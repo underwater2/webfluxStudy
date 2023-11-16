@@ -4,6 +4,7 @@ import com.example.webfluxStudy.dto.BoardDtoMongoDB;
 import com.example.webfluxStudy.dto.BoardDtoMariaDB;
 import com.example.webfluxStudy.exception.ApiResponse;
 import com.example.webfluxStudy.mapper.BoardMapperMariaDB;
+import com.example.webfluxStudy.mapper.BoardMapperMongoDB;
 import com.example.webfluxStudy.service.BoardServiceMariaDB;
 import com.example.webfluxStudy.service.BoardServiceMongoDB;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,13 +33,12 @@ public class BoardController {
     @PostMapping("/item")
     public Mono<ResponseEntity<ApiResponse<BoardDtoMongoDB.response>>> saveBoard(@RequestBody BoardDtoMongoDB.save boardDto) {
 //        헤더 여러 개 한꺼번에 추가
-//        HttpHeaders header = new HttpHeaders();
-//        header.add("desc", "test header");
+        HttpHeaders header = new HttpHeaders();
+        header.add("desc", "test header");
         return boardService.saveBoard(boardDto)
                 .map(dto -> ResponseEntity
                         .status(HttpStatus.CREATED)
-//                        .headers(header)
-                        .header("desc", "test header", "test header2")
+                        .headers(header)
                         .body(ApiResponse.<BoardDtoMongoDB.response>builder()
                                 .code(201)
                                 .message("test message")
@@ -59,17 +60,22 @@ public class BoardController {
     }
 
 //    @GetMapping("/list/{page}")
-//    public Mono<ResponseEntity<ApiResponse<BoardDto>>> getBoardList(@PathVariable Integer page){
-//        return boardService.getBoardList(id)
-//                .map(dto -> ResponseEntity
-//                        .ok()
-//                        .header("desc", "test header", "test header2")
-//                        .body(ApiResponse.<BoardDto>builder()
-//                                .code(200)
-//                                .message("test message")
-//                                .data(dto)
-//                                .build()));
+//    public Mono<Page<BoardDtoMongoDB.response>> getBoardList(@RequestParam String title, @PathVariable int page, @RequestParam int size) {
+//        return boardService.getBoardList(title, PageRequest.of(page, size));
 //    }
+
+    @GetMapping("/list/{page}")
+    public Mono<ResponseEntity<ApiResponse<Page<BoardDtoMongoDB.response>>>> getBoardList(@RequestParam String title, @PathVariable int page, @RequestParam int size) {
+        return boardService.getBoardList(title, PageRequest.of(page, size))
+                .map(dto -> ResponseEntity
+                        .ok()
+                        .header("desc", "test header", "test header2")
+                        .body(ApiResponse.<Page<BoardDtoMongoDB.response>>builder()
+                                .code(200)
+                                .message("test message")
+                                .data(dto)
+                                .build()));
+    }
 
     @PutMapping("/item/{id}")
     public Mono<ResponseEntity<ApiResponse<BoardDtoMongoDB.response>>> updateBoard(@PathVariable String id, @RequestBody Mono<BoardDtoMongoDB.save> boardDto){
@@ -147,8 +153,16 @@ public class BoardController {
     }
 
     @GetMapping("/mariadb/list/{page}")
-    public Mono<Page<BoardDtoMariaDB.response>> getBoardList(@PathVariable int page, @RequestParam int size) {
-        return boardServiceMariaDB.getBoardList(PageRequest.of(page, size));
+    public Mono<ResponseEntity<ApiResponse<Page<BoardDtoMariaDB.response>>>> getBoardListMariaDB(@PathVariable int page, @RequestParam int size) {
+        return boardServiceMariaDB.getBoardList(PageRequest.of(page, size))
+                .map(dto -> ResponseEntity
+                        .ok()
+                        .header("desc", "test header", "test header2")
+                        .body(ApiResponse.<Page<BoardDtoMariaDB.response>>builder()
+                                .code(200)
+                                .message("test message")
+                                .data(dto)
+                                .build()));
     }
 
 

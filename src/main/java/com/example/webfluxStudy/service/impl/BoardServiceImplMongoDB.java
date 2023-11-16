@@ -2,11 +2,15 @@ package com.example.webfluxStudy.service.impl;
 
 import com.example.webfluxStudy.dto.BoardDtoMongoDB;
 import com.example.webfluxStudy.entity.BoardMongoDB;
+import com.example.webfluxStudy.mapper.BoardMapperMariaDB;
 import com.example.webfluxStudy.mapper.BoardMapperMongoDB;
 import com.example.webfluxStudy.repository.BoardRepositoryMongoDB;
 import com.example.webfluxStudy.service.BoardServiceMongoDB;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Range;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
@@ -50,6 +54,15 @@ public class BoardServiceImplMongoDB implements BoardServiceMongoDB {
     }
 
     @Override
+    public Mono<Page<BoardDtoMongoDB.response>> getBoardList(String title, PageRequest pageRequest) {
+        return boardRepository.findOrderByTitle(title, pageRequest)
+                .map(BoardMapperMongoDB::toDto)
+                .collectList()
+                .zipWith(boardRepository.count())
+                .map(t -> new PageImpl<>(t.getT1(), pageRequest, t.getT2()));
+    }
+
+    @Override
     public Mono<BoardDtoMongoDB.response> updateBoard(String id, Mono<BoardDtoMongoDB.save> boardDto) {
         return boardRepository.findById(id)
                 .zipWith(boardDto)
@@ -84,8 +97,6 @@ public class BoardServiceImplMongoDB implements BoardServiceMongoDB {
                 .add("latest-seen-boards:" + "username",
                         KEY + ":" + id,
                         Double.parseDouble(new SimpleDateFormat("yyyyMMddHHmmss").format(new Timestamp(System.currentTimeMillis()))))
-//                .flatMap(result -> reactiveRedisTemplate.opsForValue().get("test-key3"))
-//                .doOnNext(value -> log.info("Connected to Redis, value retrieved: {}", value))
                 .onErrorResume(error -> {
                     log.error("Error connecting to Redis: {}", error.getMessage());
                     return Mono.empty();
