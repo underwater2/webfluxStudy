@@ -76,6 +76,16 @@ public class BoardServiceImplMongoDB implements BoardServiceMongoDB {
     }
 
     @Override
+    public Mono<BoardDtoMongoDB.response> updateBoardTitle(String id, String title) {
+        return boardRepository.findById(id)
+                .flatMap(board -> {
+                    board.setTitle(title);
+                    return boardRepository.save(board)
+                            .map(BoardMapperMongoDB::toDto);
+                });
+    }
+
+    @Override
     public Mono<Void> deleteBoard(String id) {
         return boardRepository.deleteById(id);
     }

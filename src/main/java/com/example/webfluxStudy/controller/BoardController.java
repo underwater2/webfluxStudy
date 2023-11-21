@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/v1/board")
 public class BoardController {
@@ -59,11 +61,6 @@ public class BoardController {
                                 .build()));
     }
 
-//    @GetMapping("/list/{page}")
-//    public Mono<Page<BoardDtoMongoDB.response>> getBoardList(@RequestParam String title, @PathVariable int page, @RequestParam int size) {
-//        return boardService.getBoardList(title, PageRequest.of(page, size));
-//    }
-
     @GetMapping("/list/{page}")
     public Mono<ResponseEntity<ApiResponse<Page<BoardDtoMongoDB.response>>>> getBoardList(@RequestParam String title, @PathVariable int page, @RequestParam int size) {
         return boardService.getBoardList(title, PageRequest.of(page, size))
@@ -90,6 +87,19 @@ public class BoardController {
                                 .build()));
     }
 
+    @PatchMapping("/item/title/{id}")
+    public Mono<ResponseEntity<ApiResponse<BoardDtoMongoDB.response>>> updateBoardTitle(@PathVariable String id, @RequestParam String title){
+        return boardService.updateBoardTitle(id, title)
+                .map(dto -> ResponseEntity
+                        .ok()
+                        .header("desc", "test header", "test header2")
+                        .body(ApiResponse.<BoardDtoMongoDB.response>builder()
+                                .code(200)
+                                .message("test message")
+                                .data(dto)
+                                .build()));
+    }
+
     @DeleteMapping("/item/{id}")
     public Mono<ResponseEntity<ApiResponse<?>>> deleteMember(@PathVariable("id") String id){
         return boardService.deleteBoard(id)
@@ -103,13 +113,6 @@ public class BoardController {
                                 .build()));
     }
 
-    @GetMapping("/latest-seen")
-    public ResponseEntity<Flux<ZSetOperations.TypedTuple<String>>> getLatestSeenBoard() {
-        return ResponseEntity
-                .ok()
-                .header("desc", "test header", "test header2")
-                .body(boardService.getLatestSeenBoard());
-    }
 
 //    data 잘못나오는 코드
 //    @GetMapping("/latest-seen")
@@ -124,6 +127,27 @@ public class BoardController {
 //                        .build());
 //    }
 
+//    xxxxxx
+//    @GetMapping("/latest-seen")
+//    public ResponseEntity<ApiResponse<Mono<List<ZSetOperations.TypedTuple<String>>>>> getLatestSeenBoard() {
+//        return ResponseEntity
+//                .ok()
+//                .header("desc", "test header", "test header2")
+//                .body(ApiResponse.<Mono<List<ZSetOperations.TypedTuple<String>>>>builder()
+//                        .code(200)
+//                        .message("test messagezzzzz")
+//                        .data(boardService.getLatestSeenBoard().collectList())
+//                        .build());
+//    }
+
+//    잘 동작하는 코드
+//    @GetMapping("/latest-seen")
+//    public ResponseEntity<Flux<ZSetOperations.TypedTuple<String>>> getLatestSeenBoard() {
+//        return ResponseEntity
+//                .ok()
+//                .header("desc", "test header", "test header2")
+//                .body(boardService.getLatestSeenBoard());
+//    }
 
     //---------------------- MariaDB 관련
     @PostMapping("/mariadb/item")
