@@ -141,13 +141,13 @@ public class BoardController {
 //    }
 
 //    잘 동작하는 코드
-//    @GetMapping("/latest-seen")
-//    public ResponseEntity<Flux<ZSetOperations.TypedTuple<String>>> getLatestSeenBoard() {
-//        return ResponseEntity
-//                .ok()
-//                .header("desc", "test header", "test header2")
-//                .body(boardService.getLatestSeenBoard());
-//    }
+    @GetMapping("/latest-seen")
+    public ResponseEntity<Flux<ZSetOperations.TypedTuple<String>>> getLatestSeenBoard() {
+        return ResponseEntity
+                .ok()
+                .header("desc", "test header", "test header2")
+                .body(boardService.getLatestSeenBoard());
+    }
 
     //---------------------- MariaDB 관련
     @PostMapping("/mariadb/item")
