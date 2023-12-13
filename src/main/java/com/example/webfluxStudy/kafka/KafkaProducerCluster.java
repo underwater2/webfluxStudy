@@ -44,4 +44,20 @@ public class KafkaProducerCluster {
 
     }
 
+    public void sendMessageToPartition(String key, KafkaEntity kafkaEntity) {
+
+        CompletableFuture<SendResult<String, KafkaEntity>> future =
+                kafkaTemplate.send(topicName, key, kafkaEntity);
+
+        future.whenComplete((result, ex) -> {
+            if (ex == null) {
+                log.info("producer: success >>> message: {}, offset: {}",
+                        result.getProducerRecord().value().toString(), result.getRecordMetadata().offset());
+            } else {
+                log.info("producer: failure >>> message: {}", ex.getMessage());
+            }
+        });
+
+    }
+
 }

@@ -18,4 +18,11 @@ public class KafkaControllerCluster {
 
         return "ok";
     }
+
+    @PostMapping("/kafka/produce/cluster/{key}")
+    public String sendMessageToPartition(@PathVariable String key, @RequestBody KafkaEntity message) {
+        producer.sendMessageToPartition(key, message);
+
+        return "ok";
+    }
 }
