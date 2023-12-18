@@ -2,16 +2,18 @@ package com.example.webfluxStudy.service.impl;
 
 import com.example.webfluxStudy.dto.BoardDtoMongoDB;
 import com.example.webfluxStudy.entity.BoardMongoDB;
-import com.example.webfluxStudy.mapper.BoardMapperMariaDB;
 import com.example.webfluxStudy.mapper.BoardMapperMongoDB;
 import com.example.webfluxStudy.repository.BoardRepositoryMongoDB;
 import com.example.webfluxStudy.service.BoardServiceMongoDB;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Range;
+import org.springframework.data.redis.RedisConnectionFailureException;
+import org.springframework.data.redis.core.DefaultTypedTuple;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
@@ -93,12 +95,27 @@ public class BoardServiceImplMongoDB implements BoardServiceMongoDB {
 
     // ------ redis cache
 
+    @CircuitBreaker(name = "backend-a", fallbackMethod = "fallback")
     public Flux<ZSetOperations.TypedTuple<String>> getLatestSeenBoard() {
         return reactiveRedisTemplate.opsForZSet()
                 .reverseRangeWithScores(
                         "latest-seen-boards:" + "username",
                         Range.of(Range.Bound.inclusive((long) 0), Range.Bound.inclusive((long) 9)))
                 .doOnNext(tuple -> log.info("tuple = {}", tuple));
+    }
+
+    private Flux<ZSetOperations.TypedTuple<String>> fallback(RedisConnectionFailureException e) {
+        log.error("circuitBreakerFallback message (RedisConnectionFailureException): {}", e.getMessage());
+
+        ZSetOperations.TypedTuple<String> dummyTuple = new DefaultTypedTuple<>("circuitBreakerFallback data", 1.0);
+        return Flux.just(dummyTuple);
+    }
+
+    private Flux<ZSetOperations.TypedTuple<String>> fallback(Throwable t) {
+        log.error("circuitBreakerFallback message: {}", t.getMessage());
+
+        ZSetOperations.TypedTuple<String> dummyTuple = new DefaultTypedTuple<>("circuitBreakerFallback data", 1.0);
+        return Flux.just(dummyTuple);
     }
 
     public void setLatestSeenBoard(String id) {

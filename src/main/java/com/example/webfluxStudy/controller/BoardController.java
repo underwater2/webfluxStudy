@@ -3,13 +3,10 @@ package com.example.webfluxStudy.controller;
 import com.example.webfluxStudy.dto.BoardDtoMongoDB;
 import com.example.webfluxStudy.dto.BoardDtoMariaDB;
 import com.example.webfluxStudy.exception.ApiResponse;
-import com.example.webfluxStudy.mapper.BoardMapperMariaDB;
-import com.example.webfluxStudy.mapper.BoardMapperMongoDB;
 import com.example.webfluxStudy.service.BoardServiceMariaDB;
 import com.example.webfluxStudy.service.BoardServiceMongoDB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.http.HttpHeaders;
@@ -18,8 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/v1/board")
