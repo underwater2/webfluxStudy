@@ -6,6 +6,7 @@ import com.example.webfluxStudy.mapper.BoardMapperMongoDB;
 import com.example.webfluxStudy.repository.BoardRepositoryMongoDB;
 import com.example.webfluxStudy.service.BoardServiceMongoDB;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -95,8 +96,18 @@ public class BoardServiceImplMongoDB implements BoardServiceMongoDB {
 
     // ------ redis cache
 
-    @CircuitBreaker(name = "backend-a", fallbackMethod = "fallback")
+//    @CircuitBreaker(name = "backend-a", fallbackMethod = "fallback")
+//    public Flux<ZSetOperations.TypedTuple<String>> getLatestSeenBoard() {
+//        return reactiveRedisTemplate.opsForZSet()
+//                .reverseRangeWithScores(
+//                        "latest-seen-boards:" + "username",
+//                        Range.of(Range.Bound.inclusive((long) 0), Range.Bound.inclusive((long) 9)))
+//                .doOnNext(tuple -> log.info("tuple = {}", tuple));
+//    }
+
+    @Retry(name = "backend-a", fallbackMethod = "fallbackRetry")
     public Flux<ZSetOperations.TypedTuple<String>> getLatestSeenBoard() {
+        log.info("retry");
         return reactiveRedisTemplate.opsForZSet()
                 .reverseRangeWithScores(
                         "latest-seen-boards:" + "username",
@@ -115,6 +126,13 @@ public class BoardServiceImplMongoDB implements BoardServiceMongoDB {
         log.error("circuitBreakerFallback message: {}", t.getMessage());
 
         ZSetOperations.TypedTuple<String> dummyTuple = new DefaultTypedTuple<>("circuitBreakerFallback data", 1.0);
+        return Flux.just(dummyTuple);
+    }
+
+    private Flux<ZSetOperations.TypedTuple<String>> fallbackRetry(Throwable t) {
+        log.error("[Retry] Fallback message: {}", t.getMessage());
+
+        ZSetOperations.TypedTuple<String> dummyTuple = new DefaultTypedTuple<>("[Retry] Fallback data", 1.0);
         return Flux.just(dummyTuple);
     }
 
