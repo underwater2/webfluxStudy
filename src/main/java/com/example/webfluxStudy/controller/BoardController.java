@@ -5,6 +5,7 @@ import com.example.webfluxStudy.dto.BoardDtoMariaDB;
 import com.example.webfluxStudy.exception.ApiResponse;
 import com.example.webfluxStudy.service.BoardServiceMariaDB;
 import com.example.webfluxStudy.service.BoardServiceMongoDB;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,7 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
+@Slf4j
 @RestController
 @RequestMapping("/v1/board")
 public class BoardController {
@@ -108,34 +111,7 @@ public class BoardController {
                                 .build()));
     }
 
-
-//    data 잘못나오는 코드
-//    @GetMapping("/latest-seen")
-//    public ResponseEntity<ApiResponse<Flux<ZSetOperations.TypedTuple<String>>>> getLatestSeenBoard() {
-//        return ResponseEntity
-//                .ok()
-//                .header("desc", "test header", "test header2")
-//                .body(ApiResponse.<Flux<ZSetOperations.TypedTuple<String>>>builder()
-//                        .code(200)
-//                        .message("test messagezzzzz")
-//                        .data(boardService.getLatestSeenBoard())
-//                        .build());
-//    }
-
-//    xxxxxx
-//    @GetMapping("/latest-seen")
-//    public ResponseEntity<ApiResponse<Mono<List<ZSetOperations.TypedTuple<String>>>>> getLatestSeenBoard() {
-//        return ResponseEntity
-//                .ok()
-//                .header("desc", "test header", "test header2")
-//                .body(ApiResponse.<Mono<List<ZSetOperations.TypedTuple<String>>>>builder()
-//                        .code(200)
-//                        .message("test messagezzzzz")
-//                        .data(boardService.getLatestSeenBoard().collectList())
-//                        .build());
-//    }
-
-//    잘 동작하는 코드
+//    Return type 고민
     @GetMapping("/latest-seen")
     public ResponseEntity<Flux<ZSetOperations.TypedTuple<String>>> getLatestSeenBoard() {
         return ResponseEntity
@@ -184,6 +160,19 @@ public class BoardController {
                                 .build()));
     }
 
+    // MDC 로그 테스트
+    @GetMapping("/mdc/test/{page}")
+    public Mono<Page<BoardDtoMongoDB.response>> MDCTest(@RequestParam String title, @PathVariable int page, @RequestParam int size) {
+        return Mono.deferContextual(ctx -> {
+                    return boardService.getBoardList(title, PageRequest.of(page, size));
+                })
+                .publishOn(Schedulers.boundedElastic()) // 새로운 스레드에서 실행
+                .doOnNext(result -> log.info("logged in boundedElastic Thread"))
+                .publishOn(Schedulers.parallel()) // 새로운 스레드에서 실행
+                .doOnNext(result -> log.info("logged in parallel Thread"))
+                .doOnError(error -> log.error("Error occurred: {}", error.getMessage()))
+                .log(); // 로깅을 위한 추가 메서드
+    }
 
     //---------------------- redis 연결 테스트 코드
 

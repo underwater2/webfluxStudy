@@ -10,6 +10,7 @@ import org.springframework.kafka.support.SendResult;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -23,7 +24,7 @@ public class KafkaProducerCluster {
     @Value("${spring.kafka.template.default-topic}")
     private String topicName;
 
-    public void sendMessage(KafkaEntity kafkaEntity) {
+    public Mono<String> sendMessage(KafkaEntity kafkaEntity) {
 
         Message<KafkaEntity> message = MessageBuilder
                 .withPayload(kafkaEntity)
@@ -42,9 +43,11 @@ public class KafkaProducerCluster {
             }
         });
 
+        return Mono.fromFuture(future)
+                .thenReturn("ok");
     }
 
-    public void sendMessageToPartition(String key, KafkaEntity kafkaEntity) {
+    public Mono<String> sendMessageToPartition(String key, KafkaEntity kafkaEntity) {
 
         CompletableFuture<SendResult<String, KafkaEntity>> future =
                 kafkaTemplate.send(topicName, key, kafkaEntity);
@@ -58,6 +61,8 @@ public class KafkaProducerCluster {
             }
         });
 
+        return Mono.fromFuture(future)
+                .thenReturn("ok");
     }
 
 }
