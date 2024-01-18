@@ -1,25 +1,26 @@
 package com.example.webfluxStudy.controller;
 
 import com.example.webfluxStudy.entity.KafkaEntity;
-import com.example.webfluxStudy.kafka.KafkaProducerCluster;
+import com.example.webfluxStudy.kafka.KafkaProducerClusterProto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
-//@RestController
+@RestController
 @RequiredArgsConstructor
-public class KafkaControllerCluster {
+public class KafkaControllerClusterProto {
 
-  private final KafkaProducerCluster producer;
+  private final KafkaProducerClusterProto producer;
 
-  @PostMapping("/kafka/produce/cluster")
+  @PostMapping("/kafka/produce/cluster/protobuf")
   public Mono<String> sendMessage(@RequestBody KafkaEntity message) {
     return producer.sendMessage(message);
   }
 
-  @PostMapping("/kafka/produce/cluster/{key}")
+  @PostMapping("/kafka/produce/cluster/protobuf/{key}")
   public Mono<String> sendMessageToPartition(@PathVariable String key,
       @RequestBody KafkaEntity message) {
     return producer.sendMessageToPartition(key, message);
