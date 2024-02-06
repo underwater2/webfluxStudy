@@ -12,16 +12,16 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class KafkaControllerCluster {
 
-  private final KafkaProducerCluster producer;
+    private final KafkaProducerCluster producer;
 
-  @PostMapping("/kafka/produce/cluster")
-  public Mono<String> sendMessage(@RequestBody KafkaEntity message) {
-    return producer.sendMessage(message);
-  }
+    @PostMapping("/kafka/produce/cluster")
+    public Mono<String> sendMessage(@RequestBody KafkaEntity message) {
+        return producer.sendMessage(message);
+    }
 
-  @PostMapping("/kafka/produce/cluster/{key}")
-  public Mono<String> sendMessageToPartition(@PathVariable String key,
-      @RequestBody KafkaEntity message) {
-    return producer.sendMessageToPartition(key, message);
-  }
+    @PostMapping("/kafka/produce/cluster/{key}")
+    public Mono<String> sendMessageToPartition(@PathVariable String key,
+        @RequestBody KafkaEntity message) {
+        return producer.sendMessageToPartition(key, message);
+    }
 }

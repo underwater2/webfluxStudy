@@ -18,6 +18,9 @@ public class KafkaConsumerClusterProto {
         @Headers MessageHeaders messageHeaders) throws InvalidProtocolBufferException {
 
         // 받은 객체를 가지고 로직 수행
+        FruitMessage fruitMessage = FruitMessage.parseFrom(message);
+        log.info("*********** id -> {}", fruitMessage.getId());
+        log.info("*********** message -> {}", fruitMessage.getMessage());
 
         log.info("consumer: success >>> message: {}, headers: {}", FruitMessage.parseFrom(message),
             messageHeaders);
