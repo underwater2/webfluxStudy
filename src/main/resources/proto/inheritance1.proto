@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package com.example.webfluxStudy.entity.protoExample.Inheritance1;
+
+message Animal {
+  string name = 1;
+}
+
+message Bird {
+  Animal animal = 1;
+  bool can_fly = 2;
+}
+
+message Dog {
+  Animal animal = 1;
+  string breed = 2;
+}
